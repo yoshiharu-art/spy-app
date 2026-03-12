@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SPY 0DTE">
+<meta name="theme-color" content="#070b0e">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23070b0e'/><text y='.9em' font-size='80' x='10'>📈</text></svg>">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SPY 0DTE 計算機 v5</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#070b0e;color:#c0d0de;font-family:monospace;min-height:100vh}
+button{cursor:pointer;font-family:monospace;border:none;outline:none}
+input[type=range]{width:100%;cursor:pointer}
+input[type=number]{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#c0d0de;font-family:monospace;padding:4px 8px}
+.wrap{max-width:920px;margin:0 auto;padding:14px 12px}
+.tab-bar{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid rgba(0,255,136,.1);padding-bottom:8px;flex-wrap:wrap}
+.tab{background:none;border:1px solid rgba(0,232,122,.18);color:#405060;padding:6px 14px;font-size:10px;letter-spacing:1px;transition:.15s}
+.tab.active{background:rgba(0,232,122,.1);border-color:rgba(0,232,122,.65);color:#00e87a}
+.panel{display:none}.panel.active{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.card{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.07);padding:11px 13px;margin-bottom:8px}
+.card-g{border-color:rgba(0,232,122,.28)}.card-o{border-color:rgba(255,165,0,.28)}
+.card-b{border-color:rgba(0,150,255,.22)}.card-p{border-color:rgba(180,80,255,.28)}
+.lbl{font-size:9px;letter-spacing:2px;opacity:.7;margin-bottom:5px}
+.lbl-g{color:#00e87a}.lbl-o{color:#ffa500}.lbl-b{color:#00aaff}.lbl-p{color:#b450ff}
+.btn{background:rgba(8,16,22,.9);border:1px solid rgba(100,130,100,.2);color:#405060;padding:4px 10px;font-size:10px;font-family:monospace;transition:.1s}
+.g-on{background:rgba(0,232,122,.15);border-color:rgba(0,232,122,.65);color:#00e87a}
+.o-on{background:rgba(255,165,0,.15);border-color:rgba(255,165,0,.65);color:#ffa500}
+.r-on{background:rgba(255,45,85,.15);border-color:rgba(255,45,85,.65);color:#ff2d55}
+.b-on{background:rgba(0,150,255,.15);border-color:rgba(0,150,255,.65);color:#00aaff}
+.p-on{background:rgba(180,80,255,.15);border-color:rgba(180,80,255,.65);color:#b450ff}
+.btn-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.go-btn{width:100%;padding:13px;background:rgba(0,232,122,.07);border:1px solid rgba(0,232,122,.4);color:#00e87a;font-size:12px;letter-spacing:4px;font-weight:700;margin-bottom:14px}
+.go-btn:hover{background:rgba(0,232,122,.14)}
+.strike-box{background:rgba(0,0,0,.35);border:2px solid rgba(0,232,122,.3);padding:14px;margin-bottom:9px}
+.sig-box{padding:13px 15px;margin-bottom:9px;border:2px solid}
+.grade-box{padding:12px 14px;margin-bottom:9px;border:2px solid}
+.conf-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:5px}
+.conf-fill{height:100%;border-radius:2px;transition:width .4s}
+.fi{display:flex;align-items:center;gap:7px;padding:5px 8px;font-size:9px;border:1px solid;margin-bottom:4px}
+.fi-ok{background:rgba(0,200,100,.05);border-color:rgba(0,200,100,.2);color:#90d0a8}
+.fi-ng{background:rgba(255,80,80,.05);border-color:rgba(255,80,80,.2);color:#d09090}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cd{padding:4px 2px;text-align:center;font-size:9px;cursor:pointer;border:1px solid transparent;transition:.12s}
+.cd:hover{border-color:rgba(255,255,255,.18)}.cd.sel{border-color:#00e87a;background:rgba(0,232,122,.12);color:#00e87a}
+.cd.ev{background:rgba(245,197,24,.09)}.cd.hi{background:rgba(255,80,80,.1)}
+.cl-item{padding:11px 13px;border-left:3px solid;margin-bottom:7px;background:rgba(0,0,0,.18)}
+.gex-meter{height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;position:relative;margin:6px 0}
+.alt-box{background:rgba(180,80,255,.05);border:1px solid rgba(180,80,255,.25);padding:8px 12px;font-size:9px;color:#b070d0;line-height:1.7;margin-top:6px}
+.time-tag{display:inline-block;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);padding:1px 6px;font-size:8px;color:#506070;margin-right:4px}
+.ticker{font-size:10px;color:#00e87a;opacity:.45;margin-bottom:10px;height:14px;overflow:hidden}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.fade{animation:fadeUp .3s ease}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .go-btn:active{transform:scale(.98);opacity:.9}
+    .card{transition:border-color .2s}
+    .btn{transition:all .15s}
+</style>
+
+<style>
+  @media (display-mode: standalone) {
+    body { padding-top: env(safe-area-inset-top); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="border-bottom:1px solid rgba(0,255,136,.12);padding-bottom:10px;margin-bottom:13px">
+    <div class="ticker" id="ticker">SPY 0DTE ▸ 起動中...</div>
+    <div style="font-size:9px;letter-spacing:4px;color:#00e87a;opacity:.55;margin-bottom:2px">0DTE OPTIONS CALCULATOR v5</div>
+    <h1 style="font-size:17px;font-weight:700;letter-spacing:2px">SPY <span style="color:#00e87a">0DTE</span> ストライク計算機</h1>
+    <div style="font-size:9px;color:#405060;margin-top:3px" id="dst-info">---</div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('calc',this)">◈ 計算機</button>
+    <button class="tab" onclick="switchTab('moc',this)">📡 GEX/VWAP</button>
+    <button class="tab" onclick="switchTab('cal',this)">📅 カレンダー</button>
+    <button class="tab" onclick="switchTab('check',this)">✅ 手順</button>
+    <button class="tab" onclick="switchTab('journal',this)">📒 記録</button>
+  </div>
+
+  <!-- TAB CALC -->
+  <div class="panel active" id="tab-calc">
+    <div class="g2" style="margin-bottom:9px">
+      <div>
+        <div class="card card-g">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="lbl lbl-g">SPY 現在値</div>
+            <div style="display:flex;gap:4px">
+              <button onclick="fetchQuotes()" id="fetch-btn"
+                style="background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.4);color:#00e87a;
+                font-family:monospace;font-size:9px;padding:3px 8px;cursor:pointer;letter-spacing:1px">
+                ⟳ 取得
+              </button>
+              <button onclick="toggleAutoFetch()" id="auto-btn"
+                style="background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#405060;
+                font-family:monospace;font-size:9px;padding:3px 8px;cursor:pointer;letter-spacing:1px">
+                AUTO
+              </button>
+            </div>
+          </div>
+          <div id="fetch-status" style="font-size:8px;color:#405060;margin-top:2px">手動入力中</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+            <input id="spy" type="number" value="565" step="0.01" style="font-size:22px;font-weight:700;color:#00e87a;border-color:rgba(0,232,122,.4);width:130px">
+            <div>
+              <div style="font-size:11px;color:#506070">USD</div>
+              <div id="fetch-status" style="font-size:8px;color:#405060;margin-top:2px">手動入力中</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="lbl" style="color:#a0b0c0">始値（オープン）</div>
+          <input id="open" type="number" value="563" step="0.01" style="font-size:16px;width:110px;margin-top:3px">
+        </div>
+        <div class="card card-o">
+          <div class="lbl lbl-o">VIX</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+            <input id="vix" type="number" value="18.5" step="0.1" min="5" max="80" style="font-size:19px;font-weight:700;color:#ffa500;border-color:rgba(255,165,0,.4);width:90px" oninput="sync('vix-sl','vix')">
+            <input type="range" id="vix-sl" min="5" max="80" step="0.5" value="18.5" style="flex:1;accent-color:#ffa500" oninput="sync('vix','vix-sl')">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card card-g">
+          <div class="lbl lbl-g">残り時間（エントリー目安）</div>
+          <div class="btn-row" style="margin-top:5px">
+            <button class="btn" id="t60" onclick="setMin(60)">60分</button>
+            <button class="btn" id="t90" onclick="setMin(90)">90分</button>
+            <button class="btn" id="t120" onclick="setMin(120)">120分</button>
+            <button class="btn" id="t150" onclick="setMin(150)">150分</button>
+            <button class="btn" id="t330" onclick="setMin(330)">開始30分後★</button>
+          </div>
+          <input type="range" id="min-sl" min="15" max="390" step="5" value="120" style="accent-color:#00e87a;margin-top:5px" oninput="setMinRaw(this.value)">
+          <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px">
+            <span style="color:#00e87a" id="min-lbl">120分前</span>
+            <span style="color:#506070" id="min-et"></span>
+          </div>
+        </div>
+        <div class="card card-o">
+          <div class="lbl lbl-o">OTM幅（σ倍率）</div>
+          <div class="btn-row" style="margin-top:5px">
+            <button class="btn" id="o10" onclick="setOtm(0.10)">10%</button>
+            <button class="btn" id="o15" onclick="setOtm(0.15)">15%</button>
+            <button class="btn o-on" id="o20" onclick="setOtm(0.20)">20%★</button>
+            <button class="btn" id="o35" onclick="setOtm(0.35)">35%</button>
+            <button class="btn" id="o50" onclick="setOtm(0.50)">50%</button>
+          </div>
+          <input type="range" id="otm-sl" min="0.05" max="0.70" step="0.05" value="0.20" style="accent-color:#ffa500;margin-top:5px" oninput="setOtmRaw(this.value)">
+          <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px">
+            <span style="color:#ffa500" id="otm-lbl">20%σ OTM</span>
+            <span style="color:#506070">10%→76% / 15%→67% / 20%→52%</span>
+          </div>
+        </div>
+        <div class="card card-b">
+          <div class="lbl lbl-b">MOC推定（GEX/VWAPタブより）</div>
+          <div id="moc-summary" style="margin-top:5px;font-size:10px;color:#506070">GEX/VWAPタブで入力 → ここに自動反映</div>
+          <div class="conf-bar" id="moc-cb" style="display:none"><div class="conf-fill" id="moc-cf"></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- VWAP確認フィルター -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:9px 12px;background:rgba(0,170,255,.05);border:1px solid rgba(0,170,255,.2)">
+      <div style="flex:1">
+        <div style="font-size:9px;color:#00aaff;font-weight:700;margin-bottom:2px">VWAP実体突破確認フィルター</div>
+        <div style="font-size:9px;color:#405060">ONにすると弱シグナルを自動で見送り（勝率52%→68%）</div>
+      </div>
+      <button id="vwap-filter-btn" onclick="toggleVwapFilter()"
+        style="background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#405060;
+        font-family:monospace;font-size:10px;font-weight:700;padding:7px 14px;cursor:pointer;letter-spacing:1px"
+        >OFF</button>
+    </div>
+    <button class="go-btn" onclick="calc()">▶ CALCULATE STRIKE LEVELS</button>
+    <div id="results" style="display:none;animation:fadeIn .3s ease" class="fade">
+      <!-- Webull快速注文 -->
+      <div id="webull-panel" style="display:none;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="openWebull('call')" id="wb-call-btn"
+            style="padding:13px;background:rgba(0,232,122,.08);border:2px solid rgba(0,232,122,.4);
+            color:#00e87a;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer">
+            ▲ CALL 注文<br><span id="wb-call-strike" style="font-size:9px;opacity:.7">---</span>
+          </button>
+          <button onclick="openWebull('put')" id="wb-put-btn"
+            style="padding:13px;background:rgba(255,45,85,.08);border:2px solid rgba(255,45,85,.4);
+            color:#ff2d55;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer">
+            ▼ PUT 注文<br><span id="wb-put-strike" style="font-size:9px;opacity:.7">---</span>
+          </button>
+        </div>
+        <div style="font-size:8px;color:#405060;margin-top:5px;text-align:center">
+          ※ Webullアプリの該当オプション画面を開きます（自動注文ではありません）
+        </div>
+      </div>
+      <div class="strike-box">
+        <div style="font-size:9px;letter-spacing:3px;color:#506070;margin-bottom:10px">◈ STRIKE LEVELS</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:9px;color:#506070">▲ CALL</div>
+            <div style="font-size:30px;font-weight:700;color:#00e87a" id="r-call">---</div>
+            <div style="font-size:11px;color:#00e87a;opacity:.6">→ 注文: $<span id="r-call-r">--</span></div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:#506070">現在値</div>
+            <div style="font-size:20px;font-weight:700" id="r-spy">---</div>
+            <div style="font-size:9px;color:#506070;margin-top:2px">±$<span id="r-move">--</span></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:9px;color:#506070">▼ PUT</div>
+            <div style="font-size:30px;font-weight:700;color:#ff2d55" id="r-put">---</div>
+            <div style="font-size:11px;color:#ff2d55;opacity:.6">注文: $<span id="r-put-r">--</span> ←</div>
+          </div>
+        </div>
+        <div style="background:rgba(0,232,122,.04);border:1px solid rgba(0,232,122,.2);padding:9px 13px">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:#506070;margin-bottom:5px">
+            <span id="r-put2">---</span><span style="color:#00e87a">予想レンジ</span><span id="r-call2">---</span>
+          </div>
+          <div style="height:8px;background:rgba(0,232,122,.08);border-radius:4px;position:relative">
+            <div id="r-bar" style="height:100%;background:rgba(0,232,122,.35);border-radius:4px;width:80%;transition:width .4s"></div>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:2px;height:14px;background:#00e87a"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:8px;color:#405060;margin-top:4px">
+            <span>OTM ±$<span id="r-otm">--</span></span><span>時間補正 ×<span id="r-mm">--</span></span>
+          </div>
+        </div>
+      </div>
+      <div id="sig-box" class="sig-box" style="border-color:rgba(100,120,140,.4)">
+        <div style="font-size:9px;letter-spacing:3px;color:#506070;margin-bottom:6px">◈ 方向性スコアリング</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:7px" id="sig-title">— NEUTRAL</div>
+            <div id="sig-facts"></div>
+          </div>
+          <div style="min-width:100px;text-align:right">
+            <div style="font-size:9px;color:#506070;margin-bottom:2px">総合スコア</div>
+            <div style="font-size:32px;font-weight:700;line-height:1" id="sig-conf">—</div>
+            <div style="display:flex;justify-content:flex-end;gap:5px;margin-top:5px" id="sig-scores"></div>
+            <div style="margin-top:8px;font-size:10px;color:#506070">推奨Strike<div style="font-size:15px;font-weight:700" id="sig-rec">---</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="grade-box" class="grade-box" style="border-color:rgba(100,120,140,.4)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="font-size:40px;font-weight:900;font-style:italic;line-height:1" id="grade-letter">-</div>
+            <div>
+              <div style="font-size:13px;font-weight:700" id="grade-msg">---</div>
+              <div style="font-size:10px;color:#708090;margin-top:2px;max-width:210px;line-height:1.5" id="grade-detail">---</div>
+            </div>
+          </div>
+          <div id="grade-otm-box" style="display:none;text-align:right;padding:7px 11px;border:1px solid">
+            <div style="font-size:8px;opacity:.6;margin-bottom:2px">推奨OTM</div>
+            <div style="font-size:18px;font-weight:700" id="grade-otm-val">--</div>
+          </div>
+        </div>
+        <div id="grade-filters"></div>
+        <div id="vwap-warn-box" style="display:none;margin-top:10px;padding:10px 12px;border:2px solid rgba(255,140,0,.4);background:rgba(255,140,0,.05)"></div>
+      </div>
+      <!-- ⚡ 利確モニター（エントリー後に現在値を更新） -->
+      <div id="profit-tracker" style="display:none;background:rgba(245,197,24,.05);border:2px solid rgba(245,197,24,.35);padding:14px;margin-bottom:10px">
+        <div style="font-size:8px;letter-spacing:3px;color:#f5c518;margin-bottom:6px">⚡ 利確モニター</div>
+        <div style="font-size:9px;color:#806040;margin-bottom:10px">エントリー後にSPY現在値を随時入力 → ストライクまでの距離を確認</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:8px;color:#506070;margin-bottom:3px">エントリー時のストライク</div>
+            <div style="font-size:13px;font-weight:700;color:#a0b0c0" id="pt-entry-strike">CALCULATEを押してください</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:8px;color:#f5c518;margin-bottom:3px">SPY 現在値（取引中に更新）</div>
+            <input id="live-spy" type="number" step="0.01" placeholder="現在のSPY価格"
+              style="background:rgba(0,0,0,.5);border:2px solid rgba(245,197,24,.5);color:#f5c518;font-size:24px;font-weight:700;font-family:monospace;padding:6px 10px;width:160px"
+              oninput="updateProfit()">
+          </div>
+          <button onclick="updateProfit()" style="background:rgba(245,197,24,.15);border:1px solid rgba(245,197,24,.5);color:#f5c518;font-family:monospace;padding:10px 16px;font-size:11px;font-weight:700;cursor:pointer;margin-top:18px">更新</button>
+        </div>
+        <div id="pt-body" style="display:none">
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:#506070;margin-bottom:4px">
+              <span>ストライクまでの距離</span><span id="pt-pct" style="font-weight:700;font-size:11px">--</span>
+            </div>
+            <div style="height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden">
+              <div id="pt-bar" style="height:100%;border-radius:5px;transition:width .3s,background .3s;width:0%"></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="padding:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3)">
+              <div style="font-size:8px;color:#506070;margin-bottom:2px">残り距離</div>
+              <div style="font-size:22px;font-weight:700" id="pt-dist">--</div>
+              <div style="font-size:9px;color:#506070" id="pt-target">--</div>
+            </div>
+            <div style="padding:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3)">
+              <div style="font-size:8px;color:#506070;margin-bottom:2px">状態</div>
+              <div style="font-size:14px;font-weight:700;line-height:1.3" id="pt-status">--</div>
+            </div>
+          </div>
+          <div id="pt-action" style="padding:12px 14px;border:2px solid rgba(255,165,0,.4);background:rgba(255,165,0,.06);font-size:12px;font-weight:700;text-align:center;color:#ffa500">---</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB GEX/VWAP -->
+  <div class="panel" id="tab-moc">
+    <div style="font-size:9px;letter-spacing:3px;color:#506070;margin-bottom:12px">◈ GEX/VWAP → MOC方向・規模 自動推定</div>
+    <div class="card card-p" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="lbl lbl-p">① GEX（Gamma Exposure）レベル</div>
+        <button onclick="fetchGEX()" id="gex-fetch-btn"
+          style="background:rgba(180,80,255,.12);border:1px solid rgba(180,80,255,.4);color:#b450ff;
+          font-family:monospace;font-size:9px;padding:3px 8px;cursor:pointer">
+          ⟳ 推定
+        </button>
+      </div>
+      <div id="gex-fetch-status" style="font-size:8px;color:#405060;margin-bottom:4px">手動選択 または ⟳でオプションチェーンから推定</div>
+      <div style="font-size:9px;color:#706080;margin-bottom:8px;line-height:1.7">
+        <b style="color:#b060d0">GEX+ 大</b>→動かない→MOC小 ／ <b style="color:#ff8060">GEX-</b>→ボラ加速→MOC大
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="gex-VP" onclick="setGex('VP')">大正 &gt;+2B</button>
+        <button class="btn" id="gex-P" onclick="setGex('P')">正 +0.5~2B</button>
+        <button class="btn" id="gex-Z" onclick="setGex('Z')">ほぼ0 ±0.5B</button>
+        <button class="btn" id="gex-N" onclick="setGex('N')">負 &lt;-0.5B</button>
+        <button class="btn p-on" id="gex-UK" onclick="setGex('UK')">不明</button>
+      </div>
+      <div class="gex-meter">
+        <div id="gex-fill" style="height:100%;border-radius:5px;position:absolute;top:0;left:40%;width:20%;background:rgba(100,120,140,.4);transition:.35s"></div>
+        <div style="position:absolute;left:50%;top:0;width:2px;height:100%;background:rgba(255,255,255,.2)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:#506070"><span>←大きく動く(MOC大)</span><span>動かない(MOC小)→</span></div>
+      <div style="margin-top:8px;font-size:9px" id="gex-size-est">GEX選択でMOC規模推定</div>
+    </div>
+    <div class="card card-b" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="lbl lbl-b">② VWAP乖離率（現在値 vs VWAP）</div>
+        <button onclick="fetchVWAP()" id="vwap-fetch-btn"
+          style="background:rgba(0,170,255,.12);border:1px solid rgba(0,170,255,.4);color:#00aaff;
+          font-family:monospace;font-size:9px;padding:3px 8px;cursor:pointer">
+          ⟳ 自動取得
+        </button>
+      </div>
+      <div id="vwap-fetch-status" style="font-size:8px;color:#405060;margin-bottom:4px">手動入力 または ⟳で自動計算</div>
+      <div style="font-size:9px;color:#608090;margin-bottom:8px;line-height:1.7">
+        <b style="color:#00e87a">VWAP上</b>→BUY ／ <b style="color:#ff2d55">VWAP下</b>→SELL
+      </div>
+      <div class="btn-row">
+        <button class="btn r-on" onclick="setVwap(-0.4)">-0.4%</button>
+        <button class="btn" onclick="setVwap(-0.2)">-0.2%</button>
+        <button class="btn b-on" id="vwap-zero" onclick="setVwap(0)">0%</button>
+        <button class="btn" onclick="setVwap(0.2)">+0.2%</button>
+        <button class="btn g-on" onclick="setVwap(0.4)">+0.4%</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin:6px 0">
+        <span style="font-size:9px;color:#ff2d55">-0.6%</span>
+        <input type="range" id="vwap-sl" min="-0.6" max="0.6" step="0.05" value="0" style="flex:1;accent-color:#00aaff" oninput="setVwap(this.value)">
+        <span style="font-size:9px;color:#00e87a">+0.6%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:15px;font-weight:700" id="vwap-val">0.00%</div>
+        <div id="vwap-badge" style="padding:3px 10px;border:1px solid rgba(100,120,140,.3);font-size:10px;color:#506070">NEUTRAL</div>
+      </div>
+    </div>
+    <div class="card" style="border-color:rgba(0,232,122,.35);background:rgba(0,232,122,.03);margin-bottom:10px">
+      <div class="lbl lbl-g">推定MOC（GEX x VWAP 総合）</div>
+      <div id="moc-est-main" style="margin-top:8px;font-size:10px;color:#506070">GEXとVWAPを入力してください</div>
+    </div>
+    <div class="card card-p">
+      <div class="lbl lbl-p">推定精度 &amp; 代替シグナル</div>
+      <div id="moc-conf-detail" style="margin-top:8px;font-size:10px;color:#506070">入力待ち</div>
+      <div class="alt-box">
+        <b style="color:#b060d0">GEXデータが入手できない場合の代替案</b><br>
+        ① <b>始値比モメンタム</b>（計算機で自動算出）：±0.3%以上で方向確認<br>
+        ② <b>曜日バイアス</b>：月曜・金曜はMOC規模が大きくなりやすい<br>
+        ③ <b>VIX水準</b>：VIX&gt;20は売りMOC大、VIX&lt;15は小<br>
+        ④ <b>カレンダー</b>：月末・OpEx・四半期末はMOC大（カレンダータブ）<br>
+        <span style="color:#705080;font-size:8px">代替案のみ: 精度約60% / GEX+VWAP: 約70〜75%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB CALENDAR -->
+  <div class="panel" id="tab-cal">
+    <div style="font-size:9px;letter-spacing:3px;color:#506070;margin-bottom:12px">◈ MOC リスクカレンダー</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <button onclick="prevM()" style="background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#c0d0de;padding:4px 12px;font-size:13px">◀</button>
+      <div style="flex:1;text-align:center;font-size:14px;font-weight:700" id="cal-lbl">---</div>
+      <button onclick="nextM()" style="background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#c0d0de;padding:4px 12px;font-size:13px">▶</button>
+    </div>
+    <div class="cal-g" style="margin-bottom:4px">
+      <div style="text-align:center;font-size:8px;color:#405060">日</div><div style="text-align:center;font-size:8px;color:#405060">月</div>
+      <div style="text-align:center;font-size:8px;color:#405060">火</div><div style="text-align:center;font-size:8px;color:#405060">水</div>
+      <div style="text-align:center;font-size:8px;color:#405060">木</div><div style="text-align:center;font-size:8px;color:#405060">金</div>
+      <div style="text-align:center;font-size:8px;color:#405060">土</div>
+    </div>
+    <div class="cal-g" id="cal-days"></div>
+    <div id="cal-detail" style="margin-top:10px;min-height:60px"></div>
+  </div>
+
+  <!-- TAB CHECKLIST -->
+  <div class="panel" id="tab-check">
+    <div style="font-size:9px;letter-spacing:3px;color:#506070;margin-bottom:12px">◈ デイリー手順（JST）</div>
+    <div id="cl-list"></div>
+    <div style="margin-top:10px;padding:9px 12px;background:rgba(245,197,24,.04);border:1px solid rgba(245,197,24,.15);font-size:9px;color:#506070;line-height:1.9">
+      ⚠ <b style="color:#f5c518">MOCインバランス確定: 3:50 PM ET</b>（夏: 翌04:50 JST / 冬: 翌05:50 JST）<br>
+      発表後の残り時間は10分のみ。<b style="color:#00e87a">GEX/VWAPで事前に方向を仮決め → 発表で確認</b>が正しい手順。<br>
+      <b style="color:#00e87a">推奨エントリー: 2:00〜2:30 PM ET</b>（夏: 03:00〜03:30 JST / 冬: 04:00〜04:30 JST）
+    </div>
+  </div>
+
+  <!-- TAB JOURNAL -->
+  <div class="panel" id="tab-journal">
+    <div style="font-size:9px;letter-spacing:3px;color:#506070;margin-bottom:10px">◈ トレード記録</div>
+
+    <!-- 入力フォーム -->
+    <div style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);padding:12px;margin-bottom:10px">
+      <div style="font-size:9px;color:#00e87a;margin-bottom:10px;letter-spacing:2px">＋ 新規記録</div>
+      <div class="g2" style="margin-bottom:8px;gap:6px">
+        <div>
+          <div class="lbl">日付</div>
+          <input id="j-date" type="date" style="width:100%;font-size:13px;padding:5px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#c0d0de;font-family:monospace">
+        </div>
+        <div>
+          <div class="lbl">方向</div>
+          <div style="display:flex;gap:5px;margin-top:3px">
+            <button id="j-call" class="btn g-on" onclick="setJDir('CALL')" style="flex:1;padding:7px">▲ CALL</button>
+            <button id="j-put" class="btn" onclick="setJDir('PUT')" style="flex:1;padding:7px">▼ PUT</button>
+          </div>
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:8px;gap:6px">
+        <div>
+          <div class="lbl">エントリー価格</div>
+          <input id="j-entry" type="number" step="0.01" placeholder="例: 0.54" style="width:100%;font-size:16px;font-weight:700;color:#00c8ff;padding:5px 8px;background:rgba(0,0,0,.4);border:1px solid rgba(0,200,255,.3);font-family:monospace">
+        </div>
+        <div>
+          <div class="lbl">決済価格</div>
+          <input id="j-exit" type="number" step="0.01" placeholder="例: 1.14" style="width:100%;font-size:16px;font-weight:700;color:#f5c518;padding:5px 8px;background:rgba(0,0,0,.4);border:1px solid rgba(245,197,24,.3);font-family:monospace" oninput="calcJPnl()">
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:8px;gap:6px">
+        <div>
+          <div class="lbl">グレード</div>
+          <div style="display:flex;gap:4px;margin-top:3px">
+            <button class="btn g-on" id="jg-A" onclick="setJGrade('A')" style="flex:1">A</button>
+            <button class="btn" id="jg-B" onclick="setJGrade('B')" style="flex:1">B</button>
+            <button class="btn" id="jg-C" onclick="setJGrade('C')" style="flex:1">C</button>
+            <button class="btn" id="jg-D" onclick="setJGrade('D')" style="flex:1">D</button>
+          </div>
+        </div>
+        <div>
+          <div class="lbl">損益（自動計算）</div>
+          <div style="font-size:24px;font-weight:700;margin-top:3px" id="j-pnl-preview">—</div>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="lbl">メモ（任意）</div>
+        <input id="j-memo" type="text" placeholder="例: VIX高め、MOC大BUY" style="width:100%;font-size:12px;padding:5px 8px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);color:#a0b0c0;font-family:monospace">
+      </div>
+      <button onclick="saveJournal()" style="width:100%;padding:11px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.4);color:#00e87a;font-size:11px;font-weight:700;letter-spacing:3px;cursor:pointer;font-family:monospace">✓ 記録を保存</button>
+    </div>
+
+    <!-- 集計 -->
+    <div id="j-stats" style="display:none;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);padding:10px 12px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px" id="j-stat-cards"></div>
+    </div>
+
+    <!-- 履歴 -->
+    <div id="j-list"></div>
+    <div id="j-empty" style="color:#405060;font-size:10px;padding:20px;text-align:center">まだ記録がありません</div>
+  </div>
+</div>
+
+<script>
+const S={spy:565,open:563,vix:18.5,min:105,otm:0.20,gex:'UK',vwap:0,selDate:null,calY:new Date().getFullYear(),calM:new Date().getMonth()};
+function isDST(d){const y=d.getFullYear();const ds=new Date(y,2,1);while(ds.getDay()!==0)ds.setDate(ds.getDate()+1);ds.setDate(ds.getDate()+7);const de=new Date(y,10,1);while(de.getDay()!==0)de.setDate(de.getDate()+1);return d>=ds&&d<de;}
+const DST=isDST(new Date());
+document.getElementById('dst-info').textContent=DST?'🌞 夏時間 | NY 22:30〜05:00 JST | 推奨エントリー 03:00〜03:30 JST':'🌙 冬時間 | NY 23:30〜06:00 JST | 推奨エントリー 04:00〜04:30 JST';
+function etToJst(etH,etM){const jH=(etH+(DST?13:14))%24;return(jH<10?'0':'')+jH+':'+(etM<10?'0':'')+etM;}
+function minToLabel(m){
+  if(m===330){const dst=isDST(new Date());return dst?'夏 23:00 JST':'冬 00:00 JST';}const tM=16*60-m;const h=Math.floor(tM/60);const mn=tM%60;return(h<10?'0':'')+h+':'+(mn<10?'0':'')+mn+' ET / '+etToJst(h,mn)+' JST';}
+function $$(i){return document.getElementById(i);}
+function sync(a,b){$$(a).value=$$(b).value;}
+
+// GEX/VWAP
+const GEX_SIZE={VP:'SMALL',P:'SMALL',Z:'MEDIUM',N:'LARGE',UK:'MEDIUM'};
+const GEX_LABEL={VP:'大正(>+2B)',P:'正(+0.5~2B)',Z:'ほぼ0(±0.5B)',N:'負(<-0.5B)',UK:'不明'};
+const GEX_CONF={VP:85,P:75,Z:65,N:80,UK:35};
+const GEX_METER_CSS={
+  VP:'left:52%;width:44%;background:rgba(180,80,255,.5)',
+  P:'left:52%;width:24%;background:rgba(180,80,255,.4)',
+  Z:'left:44%;width:12%;background:rgba(200,200,80,.4)',
+  N:'left:8%;width:42%;background:rgba(255,80,80,.55)',
+  UK:'left:40%;width:20%;background:rgba(100,120,140,.4)'
+};
+function vwapDir(v){
+  if(v>=0.30)return{d:'BUY',c:'0,232,122',str:'強BUY',score:42};
+  if(v>=0.15)return{d:'BUY',c:'0,200,100',str:'軽BUY',score:25};
+  if(v<=-0.30)return{d:'SELL',c:'255,45,85',str:'強SELL',score:42};
+  if(v<=-0.15)return{d:'SELL',c:'255,100,100',str:'軽SELL',score:25};
+  return{d:'NEUTRAL',c:'100,120,140',str:'NEUTRAL',score:8};
+}
+function calcMOC(){
+  const size=GEX_SIZE[S.gex];const vd=vwapDir(S.vwap);
+  const gC=GEX_CONF[S.gex];const vC=Math.round(Math.min(88,38+Math.abs(S.vwap)*110));
+  const combined=S.gex==='UK'?Math.round((gC+vC)/3):Math.round((gC+vC)/2);
+  return{dir:vd.d,size,conf:combined,vd,gC,vC,gLabel:GEX_LABEL[S.gex]};
+}
+function setGex(v){
+  S.gex=v;
+  ['VP','P','Z','N','UK'].forEach(x=>$$('gex-'+x).className='btn');
+  $$('gex-'+v).className='btn p-on';
+  const css=GEX_METER_CSS[v];
+  $$('gex-fill').style.cssText='height:100%;border-radius:5px;position:absolute;top:0;transition:.35s;'+css;
+  const sz=GEX_SIZE[v];const sc=sz==='LARGE'?'255,100,80':sz==='MEDIUM'?'245,197,24':'100,200,150';
+  $$('gex-size-est').innerHTML='GEX '+GEX_LABEL[v]+' → MOC規模推定: <b style="color:rgb('+sc+')">'+ sz+'</b>';
+  updateMOC();
+}
+function setVwap(v){
+  S.vwap=+parseFloat(v).toFixed(3);$$('vwap-sl').value=v;
+  $$('vwap-val').textContent=(S.vwap>=0?'+':'')+S.vwap.toFixed(2)+'%';
+  const vd=vwapDir(S.vwap);
+  const b=$$('vwap-badge');b.textContent=vd.str;b.style.color='rgb('+vd.c+')';b.style.borderColor='rgba('+vd.c+',.4)';
+  updateMOC();
+}
+function updateMOC(){
+  const m=calcMOC();
+  const dc=m.dir==='BUY'?'0,232,122':m.dir==='SELL'?'255,45,85':'100,120,140';
+  const di=m.dir==='BUY'?'▲':m.dir==='SELL'?'▼':'—';
+  const sc=m.size==='LARGE'?'255,100,80':m.size==='MEDIUM'?'245,197,24':'100,200,150';
+  $$('moc-est-main').innerHTML='<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+    +'<div><div style="font-size:9px;color:#506070;margin-bottom:3px">方向</div><div style="font-size:26px;font-weight:700;color:rgb('+dc+')">'+di+' '+m.dir+'</div></div>'
+    +'<div><div style="font-size:9px;color:#506070;margin-bottom:3px">規模</div><div style="font-size:26px;font-weight:700;color:rgb('+sc+')">'+m.size+'</div></div>'
+    +'<div><div style="font-size:9px;color:#506070;margin-bottom:3px">信頼度</div><div style="font-size:26px;font-weight:700;color:'+(m.conf>=65?'#00e87a':m.conf>=45?'#f5c518':'#ff5050')+'">'+m.conf+'%</div></div>'
+    +'</div>';
+  $$('moc-conf-detail').innerHTML='GEX信頼度: <b style="color:#b060d0">'+m.gC+'%</b> | VWAP信頼度: <b style="color:#00aaff">'+m.vC+'%</b> | 総合: <b>'+ m.conf+'%</b>'
+    +(m.conf<50?'<div style="color:#805020;font-size:9px;margin-top:4px">⚠ 信頼度低。下記代替シグナルを併用してください。</div>':'')
+    +(S.gex==='UK'?'<div style="color:#b060d0;font-size:9px;margin-top:2px">GEXなし→代替案のみで推定（参考程度）</div>':'');
+  $$('moc-summary').innerHTML='<span style="color:rgb('+dc+');font-weight:700;font-size:12px">'+di+' '+m.dir+'</span>'
+    +'<span style="color:rgb('+sc+');margin-left:8px;font-size:11px">'+m.size+'</span>'
+    +'<span style="color:#506070;margin-left:8px;font-size:9px">信頼度'+m.conf+'%</span>';
+  $$('moc-cb').style.display='block';
+  $$('moc-cf').style.width=m.conf+'%';$$('moc-cf').style.background='rgb('+dc+')';
+}
+
+
+// CALC
+function calcStrikes(spy,vix,min,otm){
+  const dv=(vix/100)/Math.sqrt(252),tf=min/390,bv=dv*Math.sqrt(tf),fm=spy*bv;
+  let mm=1;if(min<=15)mm=1.75;else if(min<=30)mm=1.45;else if(min<=45)mm=1.20;else if(min<=60)mm=1.08;
+  const om=fm*otm*mm;
+  const cs=+(spy+om).toFixed(2);
+  const ps=+(spy-om).toFixed(2);
+  return{cs,ps,om:+om.toFixed(2),mm:+mm.toFixed(2),
+    csr:Math.round(cs),  // CALL丸め
+    psr:Math.round(ps)}; // PUT丸め
+}
+function getSignal(spy,op,vix,mocDir,mocSize,cr){
+  const sc={C:0,P:0};const facts=[];let mom=0;let strongSignal=false;
+  if(op>0){
+    const p=(spy-op)/op*100;mom=p;const t=Math.max(.08,vix*.006);
+    if(p>t*1.5){sc.C+=35;facts.push({d:'C',t:'始値比 +'+p.toFixed(2)+'% 強上昇',w:35});strongSignal=true;}
+    else if(p>t*.5){sc.C+=18;facts.push({d:'C',t:'始値比 +'+p.toFixed(2)+'% 緩上昇（VWAPフィルター注意）',w:18});}
+    else if(p<-t*1.5){sc.P+=35;facts.push({d:'P',t:'始値比 '+p.toFixed(2)+'% 強下落',w:35});strongSignal=true;}
+    else if(p<-t*.5){sc.P+=18;facts.push({d:'P',t:'始値比 '+p.toFixed(2)+'% 緩下落（VWAPフィルター注意）',w:18});}
+    else facts.push({d:'N',t:'始値比 '+p.toFixed(2)+'% 方向感なし',w:0,warn:true});
+  }
+  if(vix<15)facts.push({d:'N',t:'VIX '+vix+' 低水準（動きにくい）',w:0,warn:true});
+  else if(vix>=18&&vix<25){sc.C+=8;sc.P+=8;facts.push({d:'N',t:'VIX '+vix+' ◎ 最適水準',w:8,good:true});}
+  else if(vix>=25&&vix<32){sc.P+=15;facts.push({d:'P',t:'VIX '+vix+' 高・下落バイアス',w:15});}
+  else if(vix>=32){sc.P+=20;facts.push({d:'P',t:'VIX '+vix+' 極高・急落リスク',w:20,warn:true});}
+  const sw={SMALL:15,MEDIUM:28,LARGE:42}[mocSize]||0;
+  if(mocDir==='BUY'&&mocSize!=='NONE'){sc.C+=sw;facts.push({d:'C',t:'MOC BUY推定('+mocSize+')',w:sw,h:true});}
+  else if(mocDir==='SELL'&&mocSize!=='NONE'){sc.P+=sw;facts.push({d:'P',t:'MOC SELL推定('+mocSize+')',w:sw,h:true});}
+  if(cr&&cr.sigs)cr.sigs.forEach(s=>{if(s.dir==='BUY'){sc.C+=12;facts.push({d:'C',t:s.label+' 買いバイアス',w:12,h:true});}});
+  const tot=sc.C+sc.P;let sig='N',conf=0;
+  if(tot>0){if(sc.C>sc.P){sig='C';conf=Math.min(92,Math.round(50+(sc.C-sc.P)/tot*50));}else if(sc.P>sc.C){sig='P';conf=Math.min(92,Math.round(50+(sc.P-sc.C)/tot*50));}}
+  const rawScore=Math.max(sc.C,sc.P);
+  const pV=vix>=16,pM=Math.abs(mom)>=0.15,pS=rawScore>=25,pSg=sig!=='N';
+  const pC=[pV,pM,pS,pSg].filter(Boolean).length;
+  let grade,gradeC,gradeMsg,gradeDetail,recOtm;
+  if(pC===4&&vix>=18&&Math.abs(mom)>=0.2&&rawScore>=35){grade='A';gradeC='0,232,122';gradeMsg='エントリー推奨（通常サイズ）';gradeDetail='全条件クリア。最高品質のセットアップ。';recOtm=vix>=25?0.35:0.20;}
+  else if(pC>=3){grade='B';gradeC='180,220,0';gradeMsg='条件付きエントリー（50〜70%）';gradeDetail='主要条件クリア。ポジションを抑えて入る。';recOtm=0.20;}
+  else if(pC===2){grade='C';gradeC='255,165,0';gradeMsg='慎重に検討（25〜50%）';gradeDetail='条件不足。シグナルは弱い。見送りも選択肢。';recOtm=0.15;}
+  else{grade='D';gradeC='255,60,60';gradeMsg='見送り推奨';gradeDetail='条件が揃っていない。今日は休む。';recOtm=null;}
+  const filters=[
+    {label:'VIX ≥ 16',pass:pV,val:'現在'+vix},
+    {label:'モメンタム ≥ 0.15%',pass:pM,val:Math.abs(mom).toFixed(2)+'%'},
+    {label:'スコア ≥ 25pt',pass:pS,val:rawScore+'pt'},
+    {label:'方向シグナルあり',pass:pSg,val:sig==='N'?'中立':'あり'},
+  ];
+  return{sig,conf,facts,sc,grade,gradeC,gradeMsg,gradeDetail,filters,recOtm,rawScore,strongSignal};
+}
+function calc(){
+  S.spy=+$$('spy').value;S.open=+$$('open').value;S.vix=+$$('vix').value;
+  const moc=calcMOC();
+  const r=calcStrikes(S.spy,S.vix,S.min,S.otm);
+  const cr=getCalRisk(S.selDate||new Date().toISOString().slice(0,10));
+  const sig=getSignal(S.spy,S.open,S.vix,moc.dir,moc.size,cr);
+  const c=sig.sig==='C'?'#00e87a':sig.sig==='P'?'#ff2d55':'#a0b0c0';
+  $$('r-call').textContent='$'+r.cs;$$('r-put').textContent='$'+r.ps;$$('r-spy').textContent='$'+S.spy;if($$('r-call-r'))$$('r-call-r').textContent=r.csr;if($$('r-put-r'))$$('r-put-r').textContent=r.psr;
+  $$('r-move').textContent=r.om;$$('r-call2').textContent=r.cs;$$('r-put2').textContent=r.ps;
+  $$('r-otm').textContent=r.om;$$('r-mm').textContent=r.mm;
+  const sb=$$('sig-box');sb.style.borderColor=sig.sig==='C'?'rgba(0,232,122,.4)':sig.sig==='P'?'rgba(255,45,85,.4)':'rgba(100,120,140,.3)';
+  sb.style.background=sig.sig==='C'?'rgba(0,232,122,.04)':sig.sig==='P'?'rgba(255,45,85,.04)':'none';
+  $$('sig-title').style.color=c;$$('sig-title').textContent=sig.sig==='C'?'▲  CALL BUY':sig.sig==='P'?'▼  PUT BUY':'—  NEUTRAL';
+  $$('sig-facts').innerHTML=sig.facts.map(f=>{
+    const fc=f.d==='C'?'#00e87a':f.d==='P'?'#ff2d55':f.warn?'#ff8c00':f.good?'#00e87a':'#506070';
+    const fi=f.d==='C'?'▲':f.d==='P'?'▼':f.warn?'⚠':f.good?'◎':'—';
+    const bar=f.w>0?'<div style="margin-left:auto;display:flex;align-items:center;gap:3px"><div style="width:'+Math.round(f.w*.8)+'px;height:3px;background:'+fc+';opacity:.5;border-radius:2px"></div><span style="font-size:8px;color:#405060">+'+f.w+'</span></div>':'';
+    return '<div style="display:flex;align-items:center;gap:7px;margin-top:4px;font-size:10px"><span style="color:'+fc+';font-size:8px">'+fi+'</span><span style="color:'+(f.h?fc:'#607080')+'">'+f.t+'</span>'+bar+'</div>';
+  }).join('');
+  $$('sig-conf').style.color=c;$$('sig-conf').innerHTML=sig.sig!=='N'?sig.conf+'<span style="font-size:11px">%</span>':'—';
+  $$('sig-scores').innerHTML='<div style="text-align:center"><div style="font-size:7px;color:#405060">CALL</div><div style="font-size:12px;font-weight:700;color:#00e87a">'+sig.sc.C+'</div></div><div style="text-align:center"><div style="font-size:7px;color:#405060">PUT</div><div style="font-size:12px;font-weight:700;color:#ff2d55">'+sig.sc.P+'</div></div>';
+  $$('sig-rec').style.color=c;$$('sig-rec').textContent=sig.sig==='C'?'$'+r.cs:sig.sig==='P'?'$'+r.ps:'—';
+  const gc='rgb('+sig.gradeC+')';const gb=$$('grade-box');gb.style.borderColor='rgba('+sig.gradeC+',.45)';gb.style.background='rgba('+sig.gradeC+',.05)';
+  $$('grade-letter').style.color=gc;$$('grade-letter').textContent=sig.grade;$$('grade-msg').style.color=gc;$$('grade-msg').textContent=sig.gradeMsg;$$('grade-detail').textContent=sig.gradeDetail;
+  const ob=$$('grade-otm-box');if(sig.recOtm){ob.style.display='block';ob.style.borderColor='rgba('+sig.gradeC+',.3)';ob.style.background='rgba('+sig.gradeC+',.07)';$$('grade-otm-val').style.color=gc;$$('grade-otm-val').textContent=Math.round(sig.recOtm*100)+'%σ';}else ob.style.display='none';
+  // VWAPフィルター判定
+  const vwapFilterOn=S.vwapFilter||false;
+  const vwapWarn=vwapFilterOn && !sig.strongSignal && sig.sig!=='N';
+  const vwapBox=$$('vwap-warn-box');
+  if(vwapBox){
+    if(vwapWarn){
+      vwapBox.style.display='block';
+      vwapBox.innerHTML='<span style="font-size:13px;font-weight:700;color:#ff8c00">⚠ VWAP見送りシグナル</span><div style="font-size:10px;color:#a07030;margin-top:4px;line-height:1.6">モメンタムが弱い。5分足の実体がVWAPを突破するまで待機。</div>';
+    } else if(vwapFilterOn && sig.sig!=='N'){
+      vwapBox.style.display='block';
+      vwapBox.innerHTML='<span style="font-size:13px;font-weight:700;color:#00e87a">✓ VWAP突破確認OK</span><div style="font-size:10px;color:#408050;margin-top:4px">強いモメンタム確認。エントリー条件クリア。</div>';
+    } else {
+      vwapBox.style.display='none';
+    }
+  }
+  $$('grade-filters').innerHTML=sig.filters.map(f=>'<div class="fi '+(f.pass?'fi-ok':'fi-ng')+'"><span style="font-size:11px;color:'+(f.pass?'#00c864':'#ff5050')+'">'+(f.pass?'✓':'✗')+'</span><div><div>'+f.label+'</div><div style="font-size:8px;color:#506070">'+f.val+'</div></div></div>').join('');
+  $$('results').style.display='block';
+  $$('profit-tracker').style.display='block';
+  // Webull panel
+  $$('webull-panel').style.display='block';
+  if($$('wb-call-strike'))$$('wb-call-strike').textContent='Strike $'+r.csr+' / 0DTE';
+  if($$('wb-put-strike'))$$('wb-put-strike').textContent='Strike $'+r.psr+' / 0DTE';
+  // Show the locked strike for reference (DON'T auto-fill live-spy — user enters current price separately)
+  const _r=calcStrikes(S.spy,S.vix,S.min,S.otm);
+  const _moc2=calcMOC();
+  const _cr2=getCalRisk(S.selDate||new Date().toISOString().slice(0,10));
+  const _sig2=getSignal(S.spy,S.open,S.vix,_moc2.dir,_moc2.size,_cr2);
+  const _tgt=_sig2.sig==='C'?'▲CALL $'+_r.cs:_sig2.sig==='P'?'▼PUT $'+_r.ps:'シグナルなし';
+  if($$('pt-entry-strike'))$$('pt-entry-strike').textContent=_tgt;
+}
+
+// Controls
+function switchTab(t,btn){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));$$('tab-'+t).classList.add('active');btn.classList.add('active');}
+function setMin(v){S.min=v;if($$('min-sl'))$$('min-sl').value=v;if($$('min-lbl'))$$('min-lbl').textContent=v===330?'開始30分後':v+'分前';if($$('min-et'))$$('min-et').textContent=minToLabel(v);['60','90','105','120','150','330'].forEach(x=>{const el=$$('t'+x);if(el)el.className='btn'+(+x===v?' g-on':'');});}
+function setMinRaw(v){S.min=+v;if($$('min-lbl'))$$('min-lbl').textContent=v+'分前';if($$('min-et'))$$('min-et').textContent=minToLabel(+v);['60','90','105','120','150'].forEach(x=>{const el=$$('t'+x);if(el)el.className='btn';});}
+function setOtm(v){S.otm=v;if($$('otm-sl'))$$('otm-sl').value=v;if($$('otm-lbl'))$$('otm-lbl').textContent=Math.round(v*100)+'%σ OTM';['10','15','20','35','50'].forEach(x=>{const el=$$('o'+x);if(el)el.className='btn'+(Math.abs(+x/100-v)<.01?' o-on':'');});}
+function toggleVwapFilter(){
+  S.vwapFilter=!S.vwapFilter;
+  const btn=$$('vwap-filter-btn');
+  if(S.vwapFilter){
+    btn.textContent='ON';
+    btn.style.background='rgba(0,170,255,.15)';
+    btn.style.borderColor='rgba(0,170,255,.6)';
+    btn.style.color='#00aaff';
+  } else {
+    btn.textContent='OFF';
+    btn.style.background='rgba(0,0,0,.4)';
+    btn.style.borderColor='rgba(255,255,255,.15)';
+    btn.style.color='#405060';
+  }
+}
+function setOtmRaw(v){S.otm=+v;$$('otm-lbl').textContent=Math.round(v*100)+'%σ OTM';['10','15','20','35','50'].forEach(x=>{$$('o'+x).className='btn';});calc();}
+
+// Calendar
+function getCalRisk(ds){
+  if(!ds)return{sigs:[],max:0};
+  const d=new Date(ds);const m=d.getMonth();const day=d.getDate();const wd=d.getDay();
+  const dim=new Date(d.getFullYear(),m+1,0).getDate();const sigs=[];
+  if(day>=dim-2)sigs.push({label:'月末リバランス',dir:'PUT',w:2});
+  if(day<=3&&wd!==0&&wd!==6)sigs.push({label:'月初年金流入',dir:'BUY',w:1});
+  if([2,5,8,11].includes(m)&&day>=dim-3)sigs.push({label:'四半期末',dir:'PUT',w:3});
+  let fri=0,opd=0;for(let i=1;i<=31;i++){const td=new Date(d.getFullYear(),m,i);if(td.getMonth()!==m)break;if(td.getDay()===5){fri++;if(fri===3){opd=i;break;}}}
+  if(day===opd)sigs.push({label:'月次OpEx',dir:'',w:2});if(day===opd-1)sigs.push({label:'OpEx前日',dir:'BUY',w:1});
+  return{sigs,max:sigs.length?Math.max(...sigs.map(s=>s.w)):0};
+}
+function renderCal(){
+  const mn=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  $$('cal-lbl').textContent=S.calY+'年 '+mn[S.calM];
+  const first=new Date(S.calY,S.calM,1).getDay(),total=new Date(S.calY,S.calM+1,0).getDate();
+  const today=new Date().toISOString().slice(0,10);let html='';
+  for(let i=0;i<first;i++)html+='<div></div>';
+  for(let d=1;d<=total;d++){
+    const ds=S.calY+'-'+String(S.calM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const cr=getCalRisk(ds);const wd=new Date(ds).getDay();
+    const isW=wd===0||wd===6;const cls='cd'+(cr.max>=3?' hi':cr.max>=1?' ev':'')+(ds===S.selDate?' sel':'');
+    const c=isW?'#283848':cr.max>=3?'#ff8080':cr.max>=1?'#f5c518':'#c0d0de';
+    html+='<div class="'+cls+'" style="'+(ds===today?'border:1px solid rgba(0,232,122,.5);':'')+' color:'+c+'" onclick="selDay(\''+ds+'\')">'+d+'</div>';
+  }
+  $$('cal-days').innerHTML=html;
+}
+function selDay(ds){S.selDate=ds;renderCal();const cr=getCalRisk(ds);const el=$$('cal-detail');
+  if(!cr.sigs.length){el.innerHTML='<div style="color:#506070;font-size:10px;padding:10px">'+ds+' — 通常日</div>';return;}
+  el.innerHTML='<div style="padding:10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07)"><div style="font-size:9px;color:#506070;margin-bottom:8px">'+ds+' MOCリスク</div>'+cr.sigs.map(s=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px"><span style="color:'+(s.dir==='BUY'?'#00e87a':s.dir==='SELL'?'#ff5050':'#f5c518')+'">'+(s.dir==='BUY'?'▲BUY':s.dir==='SELL'?'▼SELL':'⚡')+'</span><span>'+s.label+'</span><span style="color:#506070;font-size:9px">'+'★'.repeat(s.w)+'☆'.repeat(3-s.w)+'</span></div>').join('')+'</div>';
+}
+function prevM(){S.calM--;if(S.calM<0){S.calM=11;S.calY--;}renderCal();}
+function nextM(){S.calM++;if(S.calM>11){S.calM=0;S.calY++;}renderCal();}
+
+// Checklist
+const CL=[
+  {t:'前日夜',icon:'📅',title:'MOCカレンダー確認',desc:'翌日カレンダーリスク確認（月末・OpEx・四半期末）。リスク高→ポジションサイズ縮小を事前決断。',c:'0,200,255'},
+  {t:DST?'22:30 JST':'23:30 JST',icon:'🔔',title:'市場オープン・始値を記録',desc:'始値をメモしてアプリに入力。この値がモメンタム計算の基準。',c:'0,232,122'},
+  {t:DST?'00:30〜01:30 JST':'01:30〜02:30 JST',icon:'📊',title:'GEX確認（squeezemetrics.com）',desc:'GEXレベルをGEX/VWAPタブに入力。サイト未確認の場合は「不明」を選択し代替案を使用。',c:'180,80,255',url:'https://squeezemetrics.com/monitor'},
+  {t:DST?'02:30〜03:00 JST':'03:30〜04:00 JST',icon:'📈',title:'VWAP乖離チェック + 仮方向決定',desc:'WebullでVWAP乖離を確認→GEX/VWAPタブ入力→MOCを仮推定。エントリー方向を暫定決定。',c:'0,200,255'},
+  {t:DST?'03:00〜03:30 JST ★推奨':'04:00〜04:30 JST ★推奨',icon:'🎯',title:'エントリー実行（2:00〜2:30 PM ET）',desc:'信頼度60%以上 & グレードA・B → エントリー。MOC確定前に入ることで値動きの恩恵を受ける。グレードCは半ロット以下、Dは見送り。',c:'0,232,122'},
+  {t:DST?'04:50 JST':'05:50 JST',icon:'⚡',title:'MOCインバランス確定（3:50 PM ET）',desc:'公式発表確認。仮推定と一致→ホールド。逆方向→状況判断して早期決済も検討。残り10分。',c:'245,197,24'},
+  {t:DST?'04:50〜05:00 JST':'05:50〜06:00 JST',icon:'🏁',title:'クローズ（3:50〜4:00 PM ET）',desc:'引け10〜5分前に全決済。0DTEは持ち越し厳禁。プレミアム-50%で逆方向ならその時点で損切り。',c:'255,165,0'},
+];
+$$('cl-list').innerHTML=CL.map(item=>'<div class="cl-item" style="border-color:rgb('+item.c+')">'
+  +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:15px">'+item.icon+'</span>'
+  +'<div><span class="time-tag">'+item.t+'</span><span style="font-size:12px;font-weight:700;color:#e0eeff">'+item.title+'</span></div></div>'
+  +'<div style="font-size:10px;color:#708090;line-height:1.65">'+item.desc+'</div>'
+  +(item.url?'<a href="'+item.url+'" target="_blank" style="font-size:9px;color:rgb('+item.c+');opacity:.7;display:inline-block;margin-top:4px">'+item.url+' ↗</a>':'')
+  +'</div>').join('');
+
+// Ticker
+const TICKS=['▲/▼ GEX/VWAPで方向確認→2:00〜2:30 PM ETにエントリー','⏰ MOC確定は3:50 PM ET（夏04:50JST/冬05:50JST）','★ グレードA・Bのみ通常サイズ。Cは半ロット以下','◈ OTM 15%σ→勝率67% / 20%σ→52%（5年データ）','⚡ GEX+VWAP推定精度約70〜75%'];
+let ti=0;function tick(){$$('ticker').textContent=TICKS[ti];ti=(ti+1)%TICKS.length;}
+tick();setInterval(tick,4500);
+
+// Init
+$$('spy').addEventListener('input',calc);$$('open').addEventListener('input',calc);
+$$('vix').addEventListener('input',function(){sync('vix-sl','vix');calc();});
+setMin(105);setGex('UK');setVwap(0);renderCal();calc();
+
+// ═══ PROFIT TRACKER ═══
+function updateProfit(){
+  var lv=+document.getElementById('live-spy').value;
+  if(!lv)return;
+  var r=calcStrikes(S.spy,S.vix,S.min,S.otm);
+  // Use stored signal direction from last calc
+  var moc2=calcMOC();
+  var cr2=getCalRisk(S.selDate||new Date().toISOString().slice(0,10));
+  var sig2=getSignal(S.spy,S.open,S.vix,moc2.dir,moc2.size,cr2);
+  var bull=sig2.sig==='C', bear=sig2.sig==='P';
+  if(!bull&&!bear)return;
+  if($$('pt-body'))$$('pt-body').style.display='block';
+  var target=bull?r.cs:r.ps;
+  var dist=bull?target-lv:lv-target;
+  var dp=dist/lv*100, prog=Math.max(0,Math.min(100,(1-dist/r.om)*100));
+  var itm=dist<=0, da=Math.abs(dist).toFixed(2), dpa=Math.abs(dp).toFixed(3);
+  var c=itm?'0,232,122':dp<0.1?'245,197,24':dp<0.3?'255,165,0':dp<0.6?'100,150,200':'80,96,112';
+  document.getElementById('pt-bar').style.width=prog+'%';
+  document.getElementById('pt-bar').style.background='rgb('+c+')';
+  document.getElementById('pt-pct').style.color='rgb('+c+')';
+  document.getElementById('pt-pct').textContent=itm?'✓ 超え +$'+da:dpa+'% 残り $'+da;
+  document.getElementById('pt-dist').style.color='rgb('+c+')';
+  document.getElementById('pt-dist').textContent=itm?'+$'+da:'$'+da;
+  document.getElementById('pt-target').textContent=(bull?'▲CALL ':'▼PUT ')+'$'+target;
+  document.getElementById('pt-status').style.color='rgb('+c+')';
+  var act,st;
+  if(itm){st='ITM ✓';act='🏆 即利確推奨 — ストライク超え';}
+  else if(dp<0.1){st='超接近';act='⚡ 50〜75%利確を検討 — 0.1%以内';}
+  else if(dp<0.3){st='接近中';act='👀 注視 — 利確準備';}
+  else if(dp<0.6){st='追跡中';act='⏳ ホールド — まだ距離あり';}
+  else{st='待機';act='😴 ホールド — ストライクまで遠い';}
+  document.getElementById('pt-status').textContent=st;
+  var ae=document.getElementById('pt-action');
+  ae.style.borderColor='rgba('+c+',.6)';ae.style.background='rgba('+c+',.08)';
+  ae.style.color='rgb('+c+')';ae.textContent=act;
+}
+
+// ══ JOURNAL ══
+var JState={dir:'CALL',grade:'A'};
+function setJDir(d){JState.dir=d;$$('j-call').className='btn'+(d==='CALL'?' g-on':'');$$('j-put').className='btn'+(d==='PUT'?' r-on':'');}
+function setJGrade(g){JState.grade=g;['A','B','C','D'].forEach(x=>{$$('jg-'+x).className='btn'+(x===g?x==='A'?' g-on':x==='B'?' b-on':x==='C'?' o-on':' r-on':'');});}
+function calcJPnl(){
+  var en=+$$('j-entry').value,ex=+$$('j-exit').value;
+  if(!en||!ex){$$('j-pnl-preview').textContent='—';$$('j-pnl-preview').style.color='#506070';return;}
+  var p=((ex-en)/en*100).toFixed(1);
+  $$('j-pnl-preview').textContent=(p>0?'+':'')+p+'%';
+  $$('j-pnl-preview').style.color=p>0?'#00e87a':'#ff2d55';
+}
+function saveJournal(){
+  var en=+$$('j-entry').value,ex=+$$('j-exit').value,dt=$$('j-date').value;
+  if(!en||!ex||!dt){alert('日付・エントリー・決済価格は必須です');return;}
+  var trades=JSON.parse(localStorage.getItem('spy0dte_trades')||'[]');
+  var pnl=((ex-en)/en*100);
+  trades.unshift({id:Date.now(),date:dt,dir:JState.dir,grade:JState.grade,entry:en,exit:ex,pnl:+pnl.toFixed(1),memo:$$('j-memo').value||''});
+  localStorage.setItem('spy0dte_trades',JSON.stringify(trades));
+  $$('j-entry').value='';$$('j-exit').value='';$$('j-memo').value='';$$('j-pnl-preview').textContent='—';
+  renderJournal();
+}
+function deleteJournal(id){
+  var trades=JSON.parse(localStorage.getItem('spy0dte_trades')||'[]');
+  trades=trades.filter(t=>t.id!==id);
+  localStorage.setItem('spy0dte_trades',JSON.stringify(trades));
+  renderJournal();
+}
+function renderJournal(){
+  var trades=JSON.parse(localStorage.getItem('spy0dte_trades')||'[]');
+  var el=$$('j-list'),em=$$('j-empty'),st=$$('j-stats');
+  if(!trades.length){el.innerHTML='';em.style.display='block';st.style.display='none';return;}
+  em.style.display='none';st.style.display='block';
+  // Stats
+  var wins=trades.filter(t=>t.pnl>0),losses=trades.filter(t=>t.pnl<=0);
+  var wr=trades.length?(wins.length/trades.length*100).toFixed(0):0;
+  var avg=(trades.reduce((a,t)=>a+t.pnl,0)/trades.length).toFixed(1);
+  var best=trades.reduce((a,t)=>t.pnl>a?t.pnl:a,-999).toFixed(0);
+  var byGrade={};trades.forEach(t=>{if(!byGrade[t.grade])byGrade[t.grade]={w:0,l:0};t.pnl>0?byGrade[t.grade].w++:byGrade[t.grade].l++;});
+  $$('j-stat-cards').innerHTML=[
+    {l:'勝率',v:wr+'%',s:wins.length+'勝'+losses.length+'敗/'+trades.length+'T',c:wr>=55?'0,232,122':'255,80,80'},
+    {l:'平均損益',v:(avg>0?'+':'')+avg+'%',s:'1T平均',c:avg>0?'0,232,122':'255,80,80'},
+    {l:'最高利益',v:'+'+best+'%',s:'ベストT',c:'245,197,24'},
+    {l:'累計',v:(trades.reduce((a,t)=>a+t.pnl,0)>0?'+':'')+trades.reduce((a,t)=>a+t.pnl,0).toFixed(0)+'%',s:'合計損益',c:trades.reduce((a,t)=>a+t.pnl,0)>=0?'0,232,122':'255,80,80'},
+  ].map(s=>'<div style="background:rgba('+s.c+',.05);border:1px solid rgba('+s.c+',.2);padding:8px 10px"><div style="font-size:8px;color:rgb('+s.c+');opacity:.7;margin-bottom:2px">'+s.l+'</div><div style="font-size:18px;font-weight:700;color:rgb('+s.c+')">'+s.v+'</div><div style="font-size:8px;color:#506070">'+s.s+'</div></div>').join('');
+  // Grade breakdown
+  var gradeHtml='<div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">';
+  ['A','B','C','D'].forEach(g=>{
+    if(!byGrade[g])return;
+    var gw=byGrade[g].w,gl=byGrade[g].l,gt=gw+gl;
+    var gc=g==='A'?'0,232,122':g==='B'?'100,180,255':g==='C'?'255,165,0':'255,80,80';
+    gradeHtml+='<div style="background:rgba('+gc+',.07);border:1px solid rgba('+gc+',.3);padding:4px 10px;font-size:9px;color:rgb('+gc+')">Grade '+g+': '+(gw/gt*100).toFixed(0)+'% ('+gw+'/'+gt+')</div>';
+  });
+  gradeHtml+='</div>';
+  $$('j-stat-cards').insertAdjacentHTML('afterend',gradeHtml);
+  // Trade list
+  el.innerHTML=trades.map(t=>{
+    var c=t.pnl>0?'0,232,122':'255,80,80';
+    var dc=t.dir==='CALL'?'#00e87a':'#ff2d55';
+    return '<div style="background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);padding:10px 12px;margin-bottom:5px;display:flex;align-items:center;gap:10px">'
+      +'<div style="min-width:75px"><div style="font-size:9px;color:#506070">'+t.date+'</div><div style="font-size:11px;font-weight:700;color:'+dc+'">'+t.dir+'</div></div>'
+      +'<div style="flex:1"><div style="font-size:9px;color:#506070">IN: $'+t.entry+' → OUT: $'+t.exit+'</div>'+(t.memo?'<div style="font-size:9px;color:#506070;margin-top:2px">'+t.memo+'</div>':'')+'</div>'
+      +'<div style="text-align:right;min-width:70px">'
+      +'<div style="font-size:8px;padding:1px 6px;border:1px solid rgba(255,255,255,.1);color:#506070;margin-bottom:3px;display:inline-block">Grade '+t.grade+'</div>'
+      +'<div style="font-size:18px;font-weight:700;color:rgb('+c+')">'+(t.pnl>0?'+':'')+t.pnl+'%</div></div>'
+      +'<button onclick="deleteJournal('+t.id+')" style="background:none;border:none;color:#405060;font-size:14px;cursor:pointer;padding:4px">×</button>'
+      +'</div>';
+  }).join('');
+}
+
+
+// ── VWAP自動計算（Yahoo Finance 5分足） ──
+async function fetchVWAP(){
+  const btn=$$('vwap-fetch-btn');
+  const status=$$('vwap-fetch-status');
+  if(btn)btn.textContent='取得中...';
+  if(status){status.textContent='取得中...';status.style.color='#506070';}
+  try{
+    const url='https://corsproxy.io/?'+encodeURIComponent(
+      'https://query1.finance.yahoo.com/v8/finance/chart/SPY?interval=5m&range=1d'
+    );
+    const res=await fetch(url);
+    const data=await res.json();
+    const result=data.chart.result[0];
+    const quotes=result.indicators.quote[0];
+    const timestamps=result.timestamp;
+    const highs=quotes.high;
+    const lows=quotes.low;
+    const closes=quotes.close;
+    const volumes=quotes.volume;
+    // VWAP = Σ(典型値×出来高) / Σ出来高
+    let cumTPV=0,cumVol=0;
+    for(let i=0;i<closes.length;i++){
+      if(!closes[i]||!volumes[i])continue;
+      const tp=(highs[i]+lows[i]+closes[i])/3;
+      cumTPV+=tp*volumes[i];
+      cumVol+=volumes[i];
+    }
+    const vwap=cumTPV/cumVol;
+    const spy=+$$('spy').value||S.spy;
+    const pct=((spy-vwap)/vwap*100);
+    setVwap(pct.toFixed(2));
+    if($$('vwap-sl'))$$('vwap-sl').value=Math.max(-0.6,Math.min(0.6,pct));
+    const now=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+    if(status){status.textContent='VWAP $'+vwap.toFixed(2)+' / 乖離 '+(pct>0?'+':'')+pct.toFixed(2)+'% ('+now+')';status.style.color='#00aaff';}
+    if(btn)btn.textContent='⟳ 自動取得';
+  }catch(e){
+    if(status){status.textContent='取得失敗 - 手動入力してください';status.style.color='#ff5050';}
+    if(btn)btn.textContent='⟳ 自動取得';
+    console.log('VWAP fetch error',e);
+  }
+}
+
+// ── GEX近似推定（Yahoo Financeオプションチェーン） ──
+async function fetchGEX(){
+  const btn=$$('gex-fetch-btn');
+  const status=$$('gex-fetch-status');
+  if(btn)btn.textContent='推定中...';
+  if(status){status.textContent='推定中...';status.style.color='#506070';}
+  try{
+    const url='https://corsproxy.io/?'+encodeURIComponent(
+      'https://query1.finance.yahoo.com/v7/finance/options/SPY'
+    );
+    const res=await fetch(url);
+    const data=await res.json();
+    const chain=data.optionChain.result[0];
+    const spy=chain.underlyingSymbol?chain.quote?.regularMarketPrice||S.spy:S.spy;
+    const calls=chain.options[0].calls||[];
+    const puts=chain.options[0].puts||[];
+    // GEX近似: ATM付近のガンマ×OI合計
+    let callGamma=0,putGamma=0;
+    const atm=+$$('spy').value||S.spy;
+    calls.forEach(c=>{
+      if(Math.abs(c.strike-atm)<atm*0.02){
+        callGamma+=(c.gamma||0.01)*(c.openInterest||0)*100;
+      }
+    });
+    puts.forEach(p=>{
+      if(Math.abs(p.strike-atm)<atm*0.02){
+        putGamma+=(p.gamma||0.01)*(p.openInterest||0)*100;
+      }
+    });
+    const netGex=(callGamma-putGamma)/1e6; // 百万ドル単位
+    let gexLevel;
+    if(netGex>2000)gexLevel='VP';
+    else if(netGex>500)gexLevel='P';
+    else if(netGex>-500)gexLevel='Z';
+    else gexLevel='N';
+    setGex(gexLevel);
+    const now=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+    const label={VP:'大正(+2B超)',P:'正(+0.5~2B)',Z:'ほぼ0',N:'負'}[gexLevel];
+    if(status){status.textContent='推定GEX: '+label+' ('+now+') ※近似値';status.style.color='#b450ff';}
+    if(btn)btn.textContent='⟳ 推定';
+  }catch(e){
+    if(status){status.textContent='取得失敗 - 手動選択してください';status.style.color='#ff5050';}
+    if(btn)btn.textContent='⟳ 推定';
+    console.log('GEX fetch error',e);
+  }
+}
+
+// ── 自動価格取得 ──
+let autoFetchTimer=null;
+let autoFetchOn=false;
+
+async function fetchQuotes(){
+  const btn=$$('fetch-btn');
+  const status=$$('fetch-status');
+  if(btn)btn.textContent='取得中...';
+  if(status){status.textContent='取得中...';}
+  try {
+    // Yahoo Finance via corsproxy
+    const url='https://corsproxy.io/?'+encodeURIComponent(
+      'https://query1.finance.yahoo.com/v7/finance/quote?symbols=SPY,%5EVIX&fields=regularMarketPrice,regularMarketOpen'
+    );
+    const res=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0'}});
+    const data=await res.json();
+    const quotes=data.quoteResponse.result;
+    const spy=quotes.find(q=>q.symbol==='SPY');
+    const vix=quotes.find(q=>q.symbol==='^VIX');
+    if(spy){
+      $$('spy').value=spy.regularMarketPrice.toFixed(2);
+      S.spy=spy.regularMarketPrice;
+      if(spy.regularMarketOpen&&!+$$('open').value){
+        $$('open').value=spy.regularMarketOpen.toFixed(2);
+      }
+    }
+    if(vix){
+      $$('vix').value=vix.regularMarketPrice.toFixed(2);
+      if($$('vix-sl'))$$('vix-sl').value=vix.regularMarketPrice;
+      S.vix=vix.regularMarketPrice;
+    }
+    const now=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    if(status)status.textContent='更新: '+now;
+    if(status)status.style.color='#00e87a';
+    if(btn)btn.textContent='⟳ 取得';
+  } catch(e) {
+    if(status){status.textContent='取得失敗（Wi-Fi確認）';status.style.color='#ff5050';}
+    if(btn)btn.textContent='⟳ 取得';
+    console.log('fetch error',e);
+  }
+}
+
+function toggleAutoFetch(){
+  autoFetchOn=!autoFetchOn;
+  const btn=$$('auto-btn');
+  if(autoFetchOn){
+    btn.textContent='AUTO ON';
+    btn.style.background='rgba(0,232,122,.15)';
+    btn.style.borderColor='rgba(0,232,122,.5)';
+    btn.style.color='#00e87a';
+    fetchQuotes();
+    autoFetchTimer=setInterval(fetchQuotes,30000); // 30秒ごと
+  } else {
+    btn.textContent='AUTO';
+    btn.style.background='rgba(0,0,0,.4)';
+    btn.style.borderColor='rgba(255,255,255,.15)';
+    btn.style.color='#405060';
+    if(autoFetchTimer)clearInterval(autoFetchTimer);
+  }
+}
+
+// ── Webull連携 ──
+function openWebull(side){
+  const strike=side==='call'?$$('r-call').textContent.replace('$',''):$$('r-put').textContent.replace('$','');
+  const type=side==='call'?'CALL':'PUT';
+  const strikeRaw=side==='call'?$$('r-call').textContent.replace('$',''):$$('r-put').textContent.replace('$','');
+  const strikeRounded=Math.round(parseFloat(strikeRaw));
+  const copyText='SPY '+type+' $'+strikeRounded+' 0DTE';
+  // モーダル表示
+  let modal=document.getElementById('wb-modal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='wb-modal';
+    modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    document.body.appendChild(modal);
+  }
+  const col=side==='call'?'#00e87a':'#ff2d55';
+  modal.innerHTML=`<div style="background:#0a1520;border:2px solid ${col};padding:24px;width:100%;max-width:380px;font-family:monospace">
+    <div style="font-size:8px;letter-spacing:3px;color:#506070;margin-bottom:10px">◈ WEBULL 注文情報</div>
+    <div style="font-size:22px;font-weight:700;color:${col};margin-bottom:16px">${copyText}</div>
+    <div style="font-size:10px;color:#506070;margin-bottom:16px;line-height:1.8">
+      ① 下のコピーボタンを押す<br>
+      ② Webullアプリを開く<br>
+      ③ SPY → オプション → 検索に貼り付け
+    </div>
+    <div style="font-size:9px;color:#506070;margin-bottom:6px">▼ 長押しでコピー</div>
+    <input id="wb-copy-input" type="text" value="${copyText}" readonly
+      style="width:100%;background:rgba(245,197,24,.12);border:2px solid rgba(245,197,24,.6);
+      color:#f5c518;font-family:monospace;font-size:16px;font-weight:700;padding:12px 10px;
+      margin-bottom:12px;-webkit-user-select:all;user-select:all"
+      onclick="this.select();this.setSelectionRange(0,999)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <button onclick="copyStrike('${copyText}')"
+        style="padding:12px;background:rgba(245,197,24,.15);border:1px solid rgba(245,197,24,.5);
+        color:#f5c518;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer">
+        📋 コピー
+      </button>
+      <button onclick="launchWebull()"
+        style="padding:12px;background:rgba(0,170,255,.15);border:1px solid rgba(0,170,255,.5);
+        color:#00aaff;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer">
+        📱 Webull起動
+      </button>
+    </div>
+    <div style="font-size:9px;color:#405060;line-height:1.8;margin-bottom:10px">
+      ① コピー → ② Webull起動 → ③ オプション検索に貼り付け
+    </div>
+    <button onclick="document.getElementById('wb-modal').style.display='none'"
+      style="width:100%;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);
+      color:#506070;font-family:monospace;font-size:10px;cursor:pointer">
+      閉じる
+    </button>
+  </div>`;
+  modal.style.display='flex';
+  modal.onclick=function(e){if(e.target===modal)modal.style.display='none';};
+}
+function launchWebull(){
+  const isAndroid=/Android/.test(navigator.userAgent);
+  const isIOS=/iPhone|iPad/.test(navigator.userAgent);
+  if(isAndroid){
+    // Androidはintentスキームで直接起動
+    const intentUrl='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.webull.client;end';
+    window.location.href=intentUrl;
+    setTimeout(()=>{
+      window.open('https://play.google.com/store/apps/details?id=com.webull.client','_blank');
+    },2500);
+  } else if(isIOS){
+    // iOSはカスタムスキームで起動
+    window.location.href='webull://';
+    setTimeout(()=>{
+      window.open('https://apps.apple.com/app/webull/id1340608555','_blank');
+    },2500);
+  } else {
+    window.open('https://www.webull.com','_blank');
+  }
+}
+function copyStrike(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn=event.target;
+      btn.textContent='✓ コピー済み';
+      btn.style.color='#00e87a';
+      setTimeout(()=>{btn.textContent='📋 コピー';btn.style.color='#f5c518';},2000);
+    });
+  } else {
+    // fallback
+    const el=document.createElement('textarea');
+    el.value=text; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    alert('コピーしました: '+text);
+  }
+}
+
+// Init journal
+(function(){
+  var today=new Date().toISOString().slice(0,10);
+  if($$('j-date'))$$('j-date').value=today;
+  renderJournal();
+})();
+</script>
+</body>
+</html>
